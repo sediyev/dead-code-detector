@@ -34,7 +34,7 @@ public class DeadCodeDetector {
 
     @ResponseBody
     @RequestMapping(value = "/repositories/{id}", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getRepositories(@PathVariable("id") String id) {
+    public ResponseEntity<String> getRepositoryById(@PathVariable("id") String id) {
 
         return ResponseEntity.ok("It Will return repository detection results belonging to specific id. Not implemented yet");
     }
