@@ -14,7 +14,7 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 /**
  * Created by sediy on 3/28/2017.
  */
-@Component
+@RestController
 @RequestMapping("/rest/v1")
 public class DeadCodeDetector {
 
