@@ -1,9 +1,12 @@
 package com.aurea;
 
 import com.google.common.base.Predicates;
+import java.util.concurrent.Executor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
@@ -14,6 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableSwagger2
+@EnableAsync
 public class Application {
 
   public static void main(String[] args) {
@@ -32,7 +36,8 @@ public class Application {
 
   private ApiInfo apiInfo() {
     Contact contact = new Contact("Emin Sadiyev", "", "");
-    ApiInfo apiInfo = new ApiInfo(
+
+    return new ApiInfo(
         "Dead Code Detector",
         "This API crawls given github repositories and detects dead code among them.",
         "v1.0",
@@ -40,7 +45,5 @@ public class Application {
         contact,
         "",
         "");
-
-    return apiInfo;
   }
 }
