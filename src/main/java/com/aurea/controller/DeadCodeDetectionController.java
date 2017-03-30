@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/rest/v1")
-public class DeadCodeDetector {
+public class DeadCodeDetectionController {
 
   @ResponseBody
   @RequestMapping(value = "/add", method = POST, produces = APPLICATION_JSON_VALUE)
