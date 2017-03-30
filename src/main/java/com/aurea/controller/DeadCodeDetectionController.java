@@ -4,6 +4,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
+import com.aurea.exception.UnSupportedLanguageException;
 import com.aurea.service.ExecutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class DeadCodeDetectionController {
   private final ExecutorService executorService;
 
   @Autowired
-  public DeadCodeDetectionController(ExecutorService executorService){
+  public DeadCodeDetectionController(ExecutorService executorService) {
     this.executorService = executorService;
   }
 
@@ -35,9 +36,11 @@ public class DeadCodeDetectionController {
   @RequestMapping(value = "/repositories", method = GET, produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<String> getRepositories() {
 
+    // TODO temporary dependency. Will be moed to its respective place
     executorService.executeDeadCodeDetection();
 
-    return ResponseEntity.ok("Not implemented yet");
+    throw new UnSupportedLanguageException("Not yet implemented Exception!");
+
   }
 
   @ResponseBody
