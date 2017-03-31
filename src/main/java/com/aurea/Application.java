@@ -36,7 +36,7 @@ public class Application {
     Contact contact = new Contact("Emin Sadiyev", "", "");
 
     return new ApiInfo(
-        "Dead Code Detector",
+        "Dead Code DetectionDetails",
         "This API crawls given github repositories and detects dead code among them.",
         "v1.0",
         "",

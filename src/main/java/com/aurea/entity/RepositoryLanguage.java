@@ -1,4 +1,4 @@
-package com.aurea.repository;
+package com.aurea.entity;
 
 public enum RepositoryLanguage {
   JAVA("java"), C_PLUS_PLUS("c++"), C_SHARP("c#"), ADA("ada");
