@@ -15,7 +15,6 @@ public class GitServiceTest {
 
   GitService gitService = new GitService();
 
-  // TODO give local path for this directory
   private final String localGitRepository = "d:\\delete";
   private final File localDir = new File(localGitRepository);
   private final String repoUrl = "https://github.com/sediyev/dead-code-detector.git";
