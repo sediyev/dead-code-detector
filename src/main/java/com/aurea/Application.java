@@ -32,15 +32,16 @@ public class Application {
         .apiInfo(apiInfo());
   }
 
+  private int unusedForTesting;
+
   private ApiInfo apiInfo() {
-    Contact contact = new Contact("Emin Sadiyev", "", "");
 
     return new ApiInfo(
-        "Dead Code DetectionDetails",
+        "Dead Code DeadCodeDetection",
         "This API crawls given github repositories and detects dead code among them.",
         "v1.0",
         "",
-        contact,
+        new Contact("Emin Sadiyev", "", ""),
         "",
         "");
   }
