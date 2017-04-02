@@ -4,73 +4,72 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-import com.aurea.entity.DetectionDetails;
-import com.aurea.entity.GitDetails;
-import com.aurea.entity.RepositoryLanguage;
+import com.aurea.model.DeadCodeDetection;
+import com.aurea.service.DeadCodeDetectionService;
 import com.aurea.service.ExecutorService;
 import java.lang.invoke.MethodHandles;
-import org.eclipse.jgit.api.errors.GitAPIException;
+import java.util.Collection;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/rest/v1")
+@RequestMapping("/deadcode/")
 public class DeadCodeDetectionController {
 
   private final ExecutorService executorService;
+  private final DeadCodeDetectionService deadCodeDetectionService;
 
   private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  public DeadCodeDetectionController(ExecutorService executorService) {
+  public DeadCodeDetectionController(ExecutorService executorService,
+      DeadCodeDetectionService deadCodeDetectionService) {
     this.executorService = executorService;
+    this.deadCodeDetectionService = deadCodeDetectionService;
   }
 
   @ResponseBody
   @RequestMapping(value = "/add", method = POST, produces = APPLICATION_JSON_VALUE)
-  public String addRepositoryForInspection(@RequestParam String url, @RequestParam
-      RepositoryLanguage language) {
+  public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url){
 
-    LOGGER.info("Rest call to add entity for inspection. url: {}, repositoryLanguage: {}", url,
-        language);
+    LOGGER.info("Rest call to add model for inspection. url: {}", url);
 
-    DetectionDetails detectionDetails = new DetectionDetails();
-    detectionDetails.setRepositoryLanguage(language);
+    DeadCodeDetection deadCodeDetection = deadCodeDetectionService.create(url);
+    executorService.executeDeadCodeDetection(deadCodeDetection);
 
-    GitDetails gitDetails = new GitDetails();
-    gitDetails.setRepoUrl(url);
-    detectionDetails.setGitDetails(gitDetails);
-
-    try {
-      executorService.executeDeadCodeDetection(detectionDetails);
-    } catch (GitAPIException e) {
-      LOGGER.error("Error cloning entity", e);
-      // TODO
-      // set state to failed.
-    }
-
-    throw new RuntimeException("Not yet implemented!");
+    return new ResponseEntity<>(deadCodeDetection, HttpStatus.OK);
   }
 
   @ResponseBody
   @RequestMapping(value = "/repositories", method = GET, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> getRepositories() {
+  public ResponseEntity<Collection<DeadCodeDetection>> getRepositories() {
 
     LOGGER.info("Rest call to list all repositories");
 
-    return ResponseEntity.ok("Not implemented yet");
+    return new ResponseEntity<>(deadCodeDetectionService.listAll(),HttpStatus.OK);
   }
 
+  @ExceptionHandler(NoSuchElementException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
   @RequestMapping(value = "/repositories/{id}", method = GET, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<String> getRepositoryById(@PathVariable("id") String id) {
+  public ResponseEntity<DeadCodeDetection> getRepositoryById(@PathVariable("id") String id) {
 
-    return ResponseEntity.ok("Not Yet Implemented.");
+    LOGGER.info("Rest call to list repository by id: {}", id);
+
+    Optional<DeadCodeDetection> deadCodeDetection = deadCodeDetectionService.getById(new Long(id));
+
+    return new ResponseEntity<>(deadCodeDetection.get(), HttpStatus.FOUND);
   }
 
 }
