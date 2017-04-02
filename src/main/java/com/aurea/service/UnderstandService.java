@@ -24,7 +24,7 @@ public class UnderstandService {
 
   private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  @Value("${command.timeou}")
+  @Value("${command.timeout}")
   String processTimeOut;
 
   /**
