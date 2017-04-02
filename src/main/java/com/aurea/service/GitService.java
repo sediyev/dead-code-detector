@@ -1,17 +1,29 @@
 package com.aurea.service;
 
+import com.aurea.model.DeadCodeDetection;
+import com.aurea.model.GitHubRepoUrl;
 import java.io.File;
+import java.io.IOException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GitService {
+class GitService {
 
-  public void cloneRepo(String repoUrl, File localDir, String branch) throws GitAPIException {
+  private final FileService fileService;
+
+  GitService(FileService fileService){
+    this.fileService = fileService;
+  }
+
+  void cloneRepo(DeadCodeDetection deadCodeDetection, File localDir)
+      throws GitAPIException, IOException {
+
+    GitHubRepoUrl gitHubRepoUrl = deadCodeDetection.getGitHubRepoUrl();
+    String repoUrl = gitHubRepoUrl.getRepoUrl().toString();
 
     Git git = Git.cloneRepository()
-        .setBranch(branch)
         .setDirectory(localDir)
         .setURI(repoUrl)
         .call();
