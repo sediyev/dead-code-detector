@@ -22,15 +22,6 @@ public class UnusedFunctionParameterFinder implements DeadCodeFinder {
 
     LOGGER.info("Processing algorithm :{}", getClass().getSimpleName());
 
-
-//    Entity[] functions = udb.ents("method ~unresolved ~unknown");
-//    Arrays.stream(functions).forEach(entity -> {
-//      Arrays.stream(entity.refs("define","parameter",false))
-//          .filter(reference -> {
-//            Entity ent = reference.ent();
-//          });`
-//    });
-
     Entity[] parameters = udb.ents("parameter ~unresolved ~unknown");
 
     return Arrays.stream(parameters)
