@@ -1,5 +1,7 @@
 package com.aurea.service;
 
+import com.aurea.model.DeadCodeDetection;
+import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -13,7 +15,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class GitServiceTest {
 
-  GitService gitService = new GitService();
+  private final FileService fileService = new FileService();
+  private final GitService gitService = new GitService(fileService);
+  private final DeadCodeDetectionService deadCodeDetectionService = new DeadCodeDetectionService();
 
   private final String localGitRepository = "d:\\delete";
   private final File localDir = new File(localGitRepository);
@@ -36,9 +40,13 @@ public class GitServiceTest {
   @Test
   public void cloneRepositoryTest() throws GitAPIException, IOException {
 
-    System.out.println("Cloning git repository to local directory");
-    gitService.cloneRepo(repoUrl,localDir,"master");
+    File localDir = Files.createTempDir();
 
+    System.out.println("Cloning git repository to local directory");
+    DeadCodeDetection deadCode = deadCodeDetectionService.create(repoUrl);
+    System.out.println(deadCode.getGitHubRepoUrl().getRepoUrl());
+
+    gitService.cloneRepo(deadCode, localDir);
 
   }
 
