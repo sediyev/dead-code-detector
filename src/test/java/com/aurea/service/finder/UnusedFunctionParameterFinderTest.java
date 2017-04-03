@@ -1,6 +1,6 @@
-package com.aurea.service.lookup;
+package com.aurea.service.finder;
 
-import com.aurea.model.DeadCodeFinderType;
+import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
 import com.scitools.understand.Understand;
 import java.util.List;
@@ -11,9 +11,9 @@ public class UnusedFunctionParameterFinderTest extends AbstractDeadCodeFinderTes
 
   @Test
   public void findAll() throws Exception {
-    String deadVariablePath = "dead/parameter";
+    String deadVariablePath = "deadcode/parameter";
 
-    understandService.createUdb(udbPath, getFullResourcePath(deadVariablePath));
+    understandService.createUdbDatabase(udbPath, getFullResourcePath(deadVariablePath));
     db = Understand.open(udbPath);
 
     DeadCodeFinder deadCodeFinder = new UnusedFunctionParameterFinder();
@@ -28,6 +28,6 @@ public class UnusedFunctionParameterFinderTest extends AbstractDeadCodeFinderTes
   @Test
   public void getType() throws Exception {
     UnusedFunctionParameterFinder finder = new UnusedFunctionParameterFinder();
-    Assert.assertTrue(finder.getType()== DeadCodeFinderType.UNUSED_PARAMETER);
+    Assert.assertTrue(finder.getType()== DeadCodeType.UNUSED_PARAMETER);
   }
 }

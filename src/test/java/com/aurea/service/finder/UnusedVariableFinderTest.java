@@ -1,6 +1,6 @@
-package com.aurea.service.lookup;
+package com.aurea.service.finder;
 
-import com.aurea.model.DeadCodeFinderType;
+import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
 import com.scitools.understand.Understand;
 import com.scitools.understand.UnderstandException;
@@ -15,9 +15,9 @@ public class UnusedVariableFinderTest extends AbstractDeadCodeFinderTest {
   @Test
   public void findAll()
       throws UnderstandException, InterruptedException, TimeoutException, IOException {
-    String deadVariablePath = "dead/variable";
+    String deadVariablePath = "deadcode/variable";
 
-    understandService.createUdb(udbPath, getFullResourcePath(deadVariablePath));
+    understandService.createUdbDatabase(udbPath, getFullResourcePath(deadVariablePath));
     db = Understand.open(udbPath);
 
     DeadCodeFinder deadCodeFinder = new UnusedVariableFinder();
@@ -31,7 +31,7 @@ public class UnusedVariableFinderTest extends AbstractDeadCodeFinderTest {
   @Test
   public void getType() throws Exception {
     UnusedVariableFinder finder = new UnusedVariableFinder();
-    Assert.assertTrue(finder.getType() == DeadCodeFinderType.UNUSED_VARIABLE);
+    Assert.assertTrue(finder.getType() == DeadCodeType.UNUSED_VARIABLE);
   }
 
 }

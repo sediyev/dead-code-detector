@@ -1,4 +1,4 @@
-package com.aurea.service.lookup;
+package com.aurea.service.finder;
 
 import com.aurea.service.UnderstandService;
 import com.google.common.io.Files;
@@ -16,12 +16,12 @@ import org.springframework.util.ReflectionUtils;
 @SpringBootTest
 public abstract class AbstractDeadCodeFinderTest {
 
-  UnderstandService understandService = new UnderstandService();
+  protected UnderstandService understandService = new UnderstandService();
 
-  String udbPath;
-  private File tempDir;
+  protected String udbPath;
+  protected File tempDir;
 
-  Database db;
+  protected Database db;
 
   @Before
   public void setup() throws UnderstandException {
@@ -51,7 +51,7 @@ public abstract class AbstractDeadCodeFinderTest {
     }
   }
 
-  String getFullResourcePath(String localFilePath){
+  protected String getFullResourcePath(String localFilePath){
     ClassLoader classLoader = getClass().getClassLoader();
     File file = new File(classLoader.getResource(localFilePath).getFile());
 

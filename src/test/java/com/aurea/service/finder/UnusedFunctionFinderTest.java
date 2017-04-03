@@ -1,19 +1,22 @@
-package com.aurea.service.lookup;
+package com.aurea.service.finder;
 
-import com.aurea.model.DeadCodeFinderType;
+import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
 import com.scitools.understand.Understand;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.junit4.SpringRunner;
 
+@RunWith(SpringRunner.class)
 public class UnusedFunctionFinderTest extends AbstractDeadCodeFinderTest {
 
   @Test
   public void findAll() throws Exception {
-    String deadVariablePath = "dead/function";
+    String deadVariablePath = "deadcode/function";
 
-    understandService.createUdb(udbPath, getFullResourcePath(deadVariablePath));
+    understandService.createUdbDatabase(udbPath, getFullResourcePath(deadVariablePath));
     db = Understand.open(udbPath);
 
     DeadCodeFinder deadCodeFinder = new UnusedFunctionFinder();
@@ -28,7 +31,7 @@ public class UnusedFunctionFinderTest extends AbstractDeadCodeFinderTest {
   @Test
   public void getType() throws Exception {
     UnusedFunctionFinder finder = new UnusedFunctionFinder();
-    Assert.assertTrue(finder.getType()== DeadCodeFinderType.UNUSED_FUNCTION);
+    Assert.assertTrue(finder.getType()== DeadCodeType.UNUSED_FUNCTION);
   }
 
 }
