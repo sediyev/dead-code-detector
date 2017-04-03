@@ -7,6 +7,7 @@ import com.aurea.model.state.CompletedState;
 import com.aurea.model.state.DownloadingRepoState;
 import com.aurea.model.state.FailedState;
 import com.aurea.model.state.ProcessingState;
+import com.aurea.model.state.WaitingInQueueState;
 import com.google.common.io.Files;
 import com.scitools.understand.Database;
 import com.scitools.understand.Understand;
@@ -33,9 +34,8 @@ public class ExecutorService {
   private final FileService fileService;
   private final UnderstandService understandService;
 
+  // Scitools Understand API does not support multi-threading.
   private final java.util.concurrent.ExecutorService executor = Executors.newSingleThreadExecutor();
-
-//  private static final Database = Understand.open();
 
   public ExecutorService(GitService gitService, FileService fileService,
       UnderstandService understandService) {
@@ -44,17 +44,21 @@ public class ExecutorService {
     this.understandService = understandService;
   }
 
+  // Non-blocking call to download repo, create understand db and run algorithms
   @Async
   public void executeDeadCodeDetection(DeadCodeDetection deadCodeDetection) {
 
-    LOGGER.info("Started async processing of: {}", deadCodeDetection.getId());
+    File rootFile = Files.createTempDir();
+    downloadRepo(deadCodeDetection, rootFile);
 
+    deadCodeDetection.setState(new WaitingInQueueState());
     executor.submit(() -> {
-      File rootFile = null;
+
+      LOGGER.info("Started synchronous processing of: {}", deadCodeDetection.getId());
+
       Database database = null;
       try {
-        rootFile = Files.createTempDir();
-        downloadRepo(deadCodeDetection, rootFile);
+
         deadCodeDetection.setState(new ProcessingState());
 
         String udbFilePath = fileService.getUdbPath(rootFile);
@@ -65,7 +69,8 @@ public class ExecutorService {
         database = Understand.open(udbFilePath);
         LOGGER.info("Opened udb database");
 
-        List<UnusedUnderstandEntity> deadCodeList = understandService.findAllDeadCode(database, rootFile.getAbsolutePath());
+        List<UnusedUnderstandEntity> deadCodeList = understandService
+            .findAllDeadCode(database, rootFile.getAbsolutePath());
 
         LOGGER.info("Finished processing algorithms");
 
@@ -77,7 +82,6 @@ public class ExecutorService {
       } finally {
 
         // order of cleanup commands are important. Folder cannot be deleted while udb database is open
-
         if (database != null) {
           database.close();
         }
@@ -89,6 +93,7 @@ public class ExecutorService {
 
   private void downloadRepo(DeadCodeDetection deadCodeDetection, File localDir) {
 
+    LOGGER.info("Downloading repository for :{}", deadCodeDetection.getId());
     deadCodeDetection.setState(new DownloadingRepoState());
 
     try {
