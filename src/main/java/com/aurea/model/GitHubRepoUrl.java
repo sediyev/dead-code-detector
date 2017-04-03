@@ -1,5 +1,6 @@
 package com.aurea.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -21,11 +22,17 @@ public class GitHubRepoUrl {
     }
   }
 
+  @JsonProperty("url")
   public URL getRepoUrl() {
     return repoUrl;
   }
 
   public void setRepoUrl(URL repoUrl) {
     this.repoUrl = repoUrl;
+  }
+
+  @Override
+  public String toString(){
+    return repoUrl.toString();
   }
 }
