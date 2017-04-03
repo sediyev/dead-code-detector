@@ -13,6 +13,7 @@ import com.aurea.service.ExecutorService;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -66,7 +67,8 @@ public class DeadCodeDetectionController {
 
     LOGGER.info("Rest call to list all repositories. page: {}, maxCount: {}", page, maxCount);
 
-    return new ResponseEntity<>(deadCodeDetectionService.listAll(page, maxCount, deadCodeDetectionStatus), HttpStatus.OK);
+    return new ResponseEntity<>(
+        deadCodeDetectionService.listAll(page, maxCount, deadCodeDetectionStatus), HttpStatus.OK);
   }
 
   @ResponseBody
@@ -74,17 +76,22 @@ public class DeadCodeDetectionController {
   public ResponseEntity<List<UnusedUnderstandEntity>> getRepositoryById(@PathVariable("id") Long id,
       @RequestParam(required = false) DeadCodeType deadCodeType) {
 
-    LOGGER
-        .info("Rest call to list repository by id: {}, deadCodeType filter: {}", id, deadCodeType);
+    LOGGER.info("Rest call to list repository by id: {}, filter: {}", id, deadCodeType);
 
-    List<UnusedUnderstandEntity> unusedEntityList;
     if (deadCodeType == null) {
-      unusedEntityList = deadCodeDetectionService.get(id);
-    } else {
-      unusedEntityList = deadCodeDetectionService.get(id, deadCodeType);
+      return new ResponseEntity<>(deadCodeDetectionService.get(id), HttpStatus.FOUND);
     }
 
-    return new ResponseEntity<>(unusedEntityList, HttpStatus.FOUND);
+    return new ResponseEntity<>(deadCodeDetectionService.get(id, deadCodeType), HttpStatus.FOUND);
+  }
+
+  @ResponseBody
+  @RequestMapping(value = "/repositories/summary", method = GET, produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<Map<DeadCodeDetectionStatus, Long>> summary() {
+
+    LOGGER.info("Rest call to list repository summary");
+
+    return new ResponseEntity<>(deadCodeDetectionService.summary(), HttpStatus.FOUND);
   }
 
 }

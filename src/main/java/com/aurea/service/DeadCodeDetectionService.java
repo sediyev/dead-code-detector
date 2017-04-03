@@ -39,6 +39,13 @@ public class DeadCodeDetectionService {
     return deadCodeDetection == null ? new ArrayList<>() : deadCodeDetection.getDeadCodeList();
   }
 
+  public Map<DeadCodeDetectionStatus, Long> summary() {
+    return deadCodeDetectionByIdMap.values()
+        .stream()
+        .collect(Collectors
+            .groupingBy(DeadCodeDetection::getDeadCodeDetectionStatus, Collectors.counting()));
+  }
+
   public List<UnusedUnderstandEntity> get(Long id, DeadCodeType deadCodeType) {
     List<UnusedUnderstandEntity> entityList = get(id);
 
