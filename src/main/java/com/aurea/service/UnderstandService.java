@@ -1,10 +1,10 @@
 package com.aurea.service;
 
 import com.aurea.model.UnusedUnderstandEntity;
-import com.aurea.service.lookup.DeadCodeFinder;
-import com.aurea.service.lookup.UnusedFunctionFinder;
-import com.aurea.service.lookup.UnusedFunctionParameterFinder;
-import com.aurea.service.lookup.UnusedVariableFinder;
+import com.aurea.service.finder.DeadCodeFinder;
+import com.aurea.service.finder.UnusedFunctionFinder;
+import com.aurea.service.finder.UnusedFunctionParameterFinder;
+import com.aurea.service.finder.UnusedVariableFinder;
 import com.scitools.understand.Database;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -24,7 +24,7 @@ public class UnderstandService {
 
   private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  @Value("${command.timeout}")
+  @Value("${command.timeout:150}")
   String processTimeOut;
 
   /**
@@ -33,7 +33,7 @@ public class UnderstandService {
    * @param udbSource Path where .udb file will be created
    * @param projectSource The location of project source files to be analyzed
    */
-  public void createUdb(String udbSource, String projectSource)
+  public void createUdbDatabase(String udbSource, String projectSource)
       throws InterruptedException, TimeoutException, IOException {
 
     LOGGER.info("Creating udb db with udbSource:{}, projectSourcec: {}", udbSource, projectSource);
@@ -59,6 +59,12 @@ public class UnderstandService {
   }
 
 
+  /**
+   * Executes DeadCodeOccurrence finder algorithms
+   * @param db .udb Understand Database
+   * @param rootSourceDir source directory of project to be analyzed
+   * @return All found dead code occurrences
+   */
    List<UnusedUnderstandEntity> findAllDeadCode(Database db, String rootSourceDir) {
 
     List<DeadCodeFinder> finderList = Arrays.asList(
@@ -72,12 +78,12 @@ public class UnderstandService {
         .collect(Collectors.toList());
 
     return deadCodeList.stream()
-        .map(unusedUnderstandEntity -> truncateFile(unusedUnderstandEntity, rootSourceDir))
+        .map(unusedUnderstandEntity -> makeFileNamePathRelativeToRoot(unusedUnderstandEntity, rootSourceDir))
         .collect(Collectors.toList());
 
   }
 
-  private UnusedUnderstandEntity truncateFile(UnusedUnderstandEntity entity, String rootSourceDir){
+  private UnusedUnderstandEntity makeFileNamePathRelativeToRoot(UnusedUnderstandEntity entity, String rootSourceDir){
     String currentFileName = entity.getFile();
 
     String newFileName = currentFileName.substring(rootSourceDir.length());
