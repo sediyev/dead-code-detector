@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class UnusedUnderstandEntity {
 
-  private DeadCodeFinderType deadCodeFinderType;
+  private DeadCodeType deadCodeType;
 
   private String file;
   private String name;
@@ -13,13 +13,13 @@ public class UnusedUnderstandEntity {
   private Integer line;
   private Integer column;
 
-  public DeadCodeFinderType getDeadCodeFinderType() {
-    return deadCodeFinderType;
+  public DeadCodeType getDeadCodeType() {
+    return deadCodeType;
   }
 
-  public void setDeadCodeFinderType(
-      DeadCodeFinderType deadCodeFinderType) {
-    this.deadCodeFinderType = deadCodeFinderType;
+  public void setDeadCodeType(
+      DeadCodeType deadCodeType) {
+    this.deadCodeType = deadCodeType;
   }
 
   public String getFile() {
@@ -63,7 +63,7 @@ public class UnusedUnderstandEntity {
   }
 
   @Override
-  public String toString(){
+  public String toString() {
     return ReflectionToStringBuilder.toString(this,
         ToStringStyle.JSON_STYLE, true, true);
   }
