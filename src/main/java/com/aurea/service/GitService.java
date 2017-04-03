@@ -9,13 +9,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
 
 @Service
-class GitService {
-
-  private final FileService fileService;
-
-  GitService(FileService fileService){
-    this.fileService = fileService;
-  }
+public class GitService {
 
   void cloneRepo(DeadCodeDetection deadCodeDetection, File localDir)
       throws GitAPIException, IOException {
