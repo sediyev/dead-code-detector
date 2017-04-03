@@ -5,22 +5,22 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import com.aurea.model.DeadCodeDetection;
+import com.aurea.model.DeadCodeDetectionStatus;
+import com.aurea.model.DeadCodeType;
+import com.aurea.model.UnusedUnderstandEntity;
 import com.aurea.service.DeadCodeDetectionService;
 import com.aurea.service.ExecutorService;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -40,7 +40,7 @@ public class DeadCodeDetectionController {
 
   @ResponseBody
   @RequestMapping(value = "/add", method = POST, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url){
+  public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url) {
 
     LOGGER.info("Rest call to add model for inspection. url: {}", url);
 
@@ -52,24 +52,39 @@ public class DeadCodeDetectionController {
 
   @ResponseBody
   @RequestMapping(value = "/repositories", method = GET, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<Collection<DeadCodeDetection>> getRepositories() {
+  public ResponseEntity<Collection<DeadCodeDetection>> getRepositories(
+      @RequestParam(required = false, defaultValue = "0") Integer page,
+      @RequestParam(required = false, defaultValue = "50") Integer maxCount,
+      @RequestParam(required = false) DeadCodeDetectionStatus deadCodeDetectionStatus) {
 
-    LOGGER.info("Rest call to list all repositories");
+    if (maxCount < 1 || maxCount > 1000) {
+      maxCount = 1000;
+    }
+    if (page < 0) {
+      page = 0;
+    }
 
-    return new ResponseEntity<>(deadCodeDetectionService.listAll(),HttpStatus.OK);
+    LOGGER.info("Rest call to list all repositories. page: {}, maxCount: {}", page, maxCount);
+
+    return new ResponseEntity<>(deadCodeDetectionService.listAll(page, maxCount, deadCodeDetectionStatus), HttpStatus.OK);
   }
 
-  @ExceptionHandler(NoSuchElementException.class)
-  @ResponseStatus(HttpStatus.NOT_FOUND)
   @ResponseBody
   @RequestMapping(value = "/repositories/{id}", method = GET, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<DeadCodeDetection> getRepositoryById(@PathVariable("id") String id) {
+  public ResponseEntity<List<UnusedUnderstandEntity>> getRepositoryById(@PathVariable("id") Long id,
+      @RequestParam(required = false) DeadCodeType deadCodeType) {
 
-    LOGGER.info("Rest call to list repository by id: {}", id);
+    LOGGER
+        .info("Rest call to list repository by id: {}, deadCodeType filter: {}", id, deadCodeType);
 
-    Optional<DeadCodeDetection> deadCodeDetection = deadCodeDetectionService.getById(new Long(id));
+    List<UnusedUnderstandEntity> unusedEntityList;
+    if (deadCodeType == null) {
+      unusedEntityList = deadCodeDetectionService.get(id);
+    } else {
+      unusedEntityList = deadCodeDetectionService.get(id, deadCodeType);
+    }
 
-    return new ResponseEntity<>(deadCodeDetection.get(), HttpStatus.FOUND);
+    return new ResponseEntity<>(unusedEntityList, HttpStatus.FOUND);
   }
 
 }
