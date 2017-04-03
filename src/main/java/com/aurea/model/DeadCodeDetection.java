@@ -3,11 +3,15 @@ package com.aurea.model;
 import com.aurea.model.state.InitialState;
 import com.aurea.model.state.StateConsumer;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.apache.commons.lang3.Validate;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeadCodeDetection implements Serializable{
 
   private Long id;
@@ -19,6 +23,8 @@ public class DeadCodeDetection implements Serializable{
   private DeadCodeDetectionStatus deadCodeDetectionStatus;
 
   private List<UnusedUnderstandEntity> deadCodeList;
+
+  private String errorMessage;
 
   public DeadCodeDetection(String urlValue) {
 
@@ -37,7 +43,7 @@ public class DeadCodeDetection implements Serializable{
     this.id = id;
   }
 
-  @JsonFormat(pattern="yyyy-MM-dd")
+  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   public LocalDateTime getExecutionStartTime() {
     return executionStartTime;
   }
@@ -46,7 +52,7 @@ public class DeadCodeDetection implements Serializable{
     this.executionStartTime = executionStartTime;
   }
 
-  @JsonFormat(pattern="yyyy-MM-dd")
+  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   public LocalDateTime getExecutionEndTime() {
     return executionEndTime;
   }
@@ -55,7 +61,7 @@ public class DeadCodeDetection implements Serializable{
     this.executionEndTime = executionEndTime;
   }
 
-  @JsonFormat(pattern="yyyy-MM-dd")
+  @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
   public LocalDateTime getTimeRepoIsAdded() {
     return timeRepoIsAdded;
   }
@@ -72,6 +78,7 @@ public class DeadCodeDetection implements Serializable{
     this.gitHubRepoUrl = gitHubRepoUrl;
   }
 
+  @JsonProperty("status")
   public DeadCodeDetectionStatus getDeadCodeDetectionStatus() {
     return deadCodeDetectionStatus;
   }
@@ -84,12 +91,21 @@ public class DeadCodeDetection implements Serializable{
     stateConsumer.accept(this);
   }
 
+  @JsonIgnore
   public List<UnusedUnderstandEntity> getDeadCodeList() {
     return deadCodeList;
   }
 
   public void setDeadCodeList(List<UnusedUnderstandEntity> deadCodeList) {
     this.deadCodeList = deadCodeList;
+  }
+
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
   }
 
 }
