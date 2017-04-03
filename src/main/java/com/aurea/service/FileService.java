@@ -6,7 +6,7 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Service;
 
 @Service
-class FileService {
+public class FileService {
 
   /**
    * This method will not fail in case of IOException
