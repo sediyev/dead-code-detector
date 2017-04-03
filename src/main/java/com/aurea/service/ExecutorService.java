@@ -11,7 +11,6 @@ import com.aurea.model.state.WaitingInQueueState;
 import com.google.common.io.Files;
 import com.scitools.understand.Database;
 import com.scitools.understand.Understand;
-import com.scitools.understand.UnderstandException;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.zeroturnaround.exec.InvalidExitValueException;
 
 @Service
 public class ExecutorService {
@@ -62,8 +62,8 @@ public class ExecutorService {
         deadCodeDetection.setState(new ProcessingState());
 
         String udbFilePath = fileService.getUdbPath(rootFile);
-        // Create udb database
-        understandService.createUdb(udbFilePath, rootFile.getAbsolutePath());
+
+        understandService.createUdbDatabase(udbFilePath, rootFile.getAbsolutePath());
 
         LOGGER.info("Opening udb database");
         database = Understand.open(udbFilePath);
@@ -72,13 +72,21 @@ public class ExecutorService {
         List<UnusedUnderstandEntity> deadCodeList = understandService
             .findAllDeadCode(database, rootFile.getAbsolutePath());
 
-        LOGGER.info("Finished processing algorithms");
+        LOGGER.info("Finished processing algorithms: {}", deadCodeDetection.getId());
 
         deadCodeDetection.setDeadCodeList(deadCodeList);
         deadCodeDetection.setState(new CompletedState());
-      } catch (InterruptedException | IOException | TimeoutException | UnderstandException e) {
-        deadCodeDetection.setState(new FailedState());
+      } catch (TimeoutException e) {
+        deadCodeDetection.setState(new FailedState("Timed out while creating udb database"));
         LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+      } catch (InvalidExitValueException e) {
+        deadCodeDetection.setState(new FailedState("Creating udb database failed."));
+        LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+
+      } catch (Exception e) {
+        deadCodeDetection.setState(new FailedState(e.getMessage()));
+        LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+
       } finally {
 
         // order of cleanup commands are important. Folder cannot be deleted while udb database is open
