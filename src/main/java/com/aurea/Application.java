@@ -1,6 +1,8 @@
 package com.aurea;
 
 import com.google.common.base.Predicates;
+import java.util.Collection;
+import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +33,7 @@ public class Application {
         .paths(Predicates.not(PathSelectors.regex("/error")))
         .apis(RequestHandlerSelectors.any())
         .build()
+        .directModelSubstitute(Collection.class, List.class)
         .apiInfo(apiInfo());
   }
 
@@ -49,7 +52,7 @@ public class Application {
   @Bean(name="taskExecutor")
   public ThreadPoolTaskExecutor defaultTaskExecutor() {
     ThreadPoolTaskExecutor pool = new ThreadPoolTaskExecutor();
-    pool.setCorePoolSize(2);
+    pool.setCorePoolSize(1);
     return pool;
   }
 }
