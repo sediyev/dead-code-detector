@@ -1,4 +1,4 @@
-package dead.variable;
+package deadcode.variable;
 
 public class SampleDeadVariable{
   private int unused;

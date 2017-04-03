@@ -1,4 +1,4 @@
-package dead.parameter;
+package deadcode.parameter;
 
 public class SampleDeadParameter{
 

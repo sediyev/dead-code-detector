@@ -1,4 +1,4 @@
-package dead.function;
+package deadcode.function;
 
 public class SampleDeadMethod {
   public SampleDeadMethod(){
