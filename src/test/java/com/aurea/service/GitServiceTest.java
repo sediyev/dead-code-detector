@@ -15,8 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class GitServiceTest {
 
-  private final FileService fileService = new FileService();
-  private final GitService gitService = new GitService(fileService);
+  private final GitService gitService = new GitService();
   private final DeadCodeDetectionService deadCodeDetectionService = new DeadCodeDetectionService();
 
   private final String localGitRepository = "d:\\delete";
