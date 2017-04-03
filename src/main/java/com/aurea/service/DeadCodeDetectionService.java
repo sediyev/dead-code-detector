@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +23,8 @@ public class DeadCodeDetectionService {
    */
   private static AtomicLong idGenerator = new AtomicLong(1L);
 
-  private static Map<Long, DeadCodeDetection> deadCodeDetectionByIdMap = new ConcurrentHashMap<>();
+  private static final int initialHashMapCapacity = 1_000;
+  private static Map<Long, DeadCodeDetection> deadCodeDetectionByIdMap = new ConcurrentHashMap<>(initialHashMapCapacity);
 
   public DeadCodeDetection create(String url) {
 
@@ -54,23 +56,45 @@ public class DeadCodeDetectionService {
         .collect(Collectors.toList());
   }
 
-  public Collection<DeadCodeDetection> listAll(int page, int maxCount,
-      DeadCodeDetectionStatus deadCodeDetectionStatus) {
+  // Filters map with deadCodeDetectionStatus
+  private Map<Long, DeadCodeDetection> applyStatusFilter(
+      DeadCodeDetectionStatus deadCodeDetectionStatus, Map<Long, DeadCodeDetection> map) {
 
     if (deadCodeDetectionStatus == null) {
-      return getDeadCodeDetections(deadCodeDetectionByIdMap, page, maxCount);
+      return map;
     }
 
-    Map<Long, DeadCodeDetection> filteredMap =
-        deadCodeDetectionByIdMap.values().stream()
-            .filter(deadCodeDetection -> deadCodeDetection.getDeadCodeDetectionStatus()
-                == deadCodeDetectionStatus)
-            .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
-
-    return getDeadCodeDetections(filteredMap, page, maxCount);
+    return map.values().stream()
+        .filter(deadCodeDetection -> deadCodeDetection.getDeadCodeDetectionStatus()
+            == deadCodeDetectionStatus)
+        .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
   }
 
-  private Collection<DeadCodeDetection> getDeadCodeDetections(
+  // Filters map with url
+  private Map<Long, DeadCodeDetection> applyUrlFilter(String url,
+      Map<Long, DeadCodeDetection> map) {
+
+    if (StringUtils.isBlank(url)) {
+      return map;
+    }
+
+    return map.values().stream()
+        .filter(deadCodeDetection -> StringUtils
+            .equals(deadCodeDetection.getGitHubRepoUrl().toString(), url))
+        .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
+  }
+
+  public Collection<DeadCodeDetection> listAll(int page, int maxCount,
+      DeadCodeDetectionStatus deadCodeDetectionStatus, String url) {
+
+    Map<Long, DeadCodeDetection> filteredByUrlMap = applyUrlFilter(url, deadCodeDetectionByIdMap);
+    Map<Long, DeadCodeDetection> filteredByStatusAndUrlMap = applyStatusFilter(
+        deadCodeDetectionStatus, filteredByUrlMap);
+
+    return getDeadCodeDetectionList(filteredByStatusAndUrlMap, page, maxCount);
+  }
+
+  private Collection<DeadCodeDetection> getDeadCodeDetectionList(
       Map<Long, DeadCodeDetection> deadCodeDetectionMap, int page, int maxCount) {
     int listSize = deadCodeDetectionMap.size();
 
