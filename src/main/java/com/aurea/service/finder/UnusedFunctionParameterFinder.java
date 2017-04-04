@@ -1,4 +1,4 @@
-package com.aurea.service.lookup;
+package com.aurea.service.finder;
 
 import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
@@ -6,9 +6,9 @@ import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
 import com.scitools.understand.Reference;
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,39 +22,26 @@ public class UnusedFunctionParameterFinder implements DeadCodeFinder {
 
     LOGGER.info("Processing algorithm :{}", getClass().getSimpleName());
 
-//    Entity[] parameters = udb.ents("parameter ~unresolved ~unknown");
-//
-//    return Arrays.stream(parameters)
-//        .filter(entity -> entity.refs("useby", null, false).length == 0)
-//        .map(entity -> DeadCodeFinder.getUnusedUnderstandEntity(entity, getType()))
-//        .collect(toList());
+    Entity[] parameters = udb.ents("parameter ~unresolved ~unknown");
 
-      Entity[] parameters = udb.ents("type ~interface ~unresolved ~unknown");
+    return Arrays.stream(parameters)
+        .filter(isNotUsed())
+        .filter(notInAbstractMethod())
+        .filter(hasNotImplicitDefinition())
+        .map(entity -> DeadCodeFinder.getUnusedUnderstandEntity(entity, getType()))
+        .collect(Collectors.toList());
+  }
 
+  private Predicate<Entity> notInAbstractMethod() {
+    return entity -> entity.refs("definein", "method abstract", false).length == 0;
+  }
 
-      //TODO unacceptable code
-      List<UnusedUnderstandEntity> entityList = new ArrayList<>();
-      Arrays.stream(parameters).forEach(entity -> {
-        Arrays.stream(entity.refs("~unresolved ~unknown", "method", true))
-        .filter(reference -> {
-          Entity methodEntity = reference.ent();
+  private Predicate<Entity> isNotUsed() {
+    return entity -> entity.refs("useby", null, false).length == 0;
+  }
 
-          if(getRef(methodEntity) == null && getRef(methodEntity).line() != getRef(entity).line()){
-            entityList.addAll(
-                Arrays.stream(methodEntity.refs("~unresolved ~unknown ~catch", "parameter", true))
-                .filter(reference1 -> reference1.ent().refs("useby", null, false).length == 0)
-                    .map(reference1 -> reference1.ent())
-                    .map(entity1 -> DeadCodeFinder.getUnusedUnderstandEntity(entity1, getType()))
-                .collect(Collectors.toList())
-            );
-          }
-          return true;
-        });
-
-      });
-
-      return entityList;
-
+  private Predicate<Entity> hasNotImplicitDefinition() {
+    return entity -> entity.refs("definein implicit", null, false).length == 0;
   }
 
   private Reference getRef(Entity methodEntity){
