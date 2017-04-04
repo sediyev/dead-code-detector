@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class FileService {
 
+  private final String udbFileName = "database.udb";
+
   /**
    * This method will not fail in case of IOException
    * @param directory directory path to be deleted
@@ -26,6 +28,7 @@ public class FileService {
   }
 
   String getUdbPath(File sourcePath){
-    return sourcePath.getAbsolutePath() + "/db.udb";
+    File udbFile = new File(sourcePath, udbFileName);
+    return udbFile.getAbsolutePath();
   }
 }
