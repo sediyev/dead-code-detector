@@ -26,6 +26,6 @@ public class FileService {
   }
 
   String getUdbPath(File sourcePath){
-    return sourcePath.getAbsolutePath() + "\\db.udb";
+    return sourcePath.getAbsolutePath() + "/db.udb";
   }
 }
