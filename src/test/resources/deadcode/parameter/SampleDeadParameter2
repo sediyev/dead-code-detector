@@ -5,3 +5,7 @@ public interface SampleDeadParameter2{
 int interfaceMethod (int unapplicableParameter);
 
 }
+
+enum Test{
+TEST1, TEST2
+}
