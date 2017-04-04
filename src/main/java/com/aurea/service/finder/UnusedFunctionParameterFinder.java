@@ -40,6 +40,8 @@ public class UnusedFunctionParameterFinder implements DeadCodeFinder {
     return entity -> entity.refs("useby", null, false).length == 0;
   }
 
+  // In enum type Understand api shows a parameter having EnumType.valueOf.s definition
+  // leading to erronous detection. This filter is implemented to remove such cases
   private Predicate<Entity> hasNotImplicitDefinition() {
     return entity -> entity.refs("definein implicit", null, false).length == 0;
   }
