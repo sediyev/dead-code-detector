@@ -4,7 +4,6 @@ import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
 import com.scitools.understand.Database;
 import com.scitools.understand.Entity;
-import com.scitools.understand.Reference;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.List;
@@ -41,14 +40,9 @@ public class UnusedFunctionParameterFinder implements DeadCodeFinder {
   }
 
   // In enum type Understand api shows a parameter having EnumType.valueOf.s definition
-  // leading to erronous detection. This filter is implemented to remove such cases
+  // leading to erroneous detection. This filter is implemented to remove such cases
   private Predicate<Entity> hasNotImplicitDefinition() {
     return entity -> entity.refs("definein implicit", null, false).length == 0;
-  }
-
-  private Reference getRef(Entity methodEntity){
-    Reference[] defineIn = methodEntity.refs("definein", null, false);
-    return defineIn.length >0 ? defineIn[0] : null;
   }
 
   @Override
