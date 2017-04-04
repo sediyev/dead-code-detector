@@ -1,0 +1,7 @@
+package deadcode.parameter;
+
+public interface SampleDeadParameter2{
+
+int interfaceMethod (int unapplicableParameter);
+
+}
