@@ -2,7 +2,7 @@ package deadcode.parameter;
 
 public class SampleDeadParameter{
 
-  public int firstFunction(int unusedParameter, int unusedParameter2, int setButNotUsedParameter, int usedParameter, int usedParameter2, int modifiedNotUsed){
+  public void firstFunction(int unusedParameter, int unusedParameter2, int setButNotUsedParameter, int usedParameter, int usedParameter2, int modifiedNotUsed){
 
     unusedParameter2 = 3;
 
@@ -10,7 +10,6 @@ public class SampleDeadParameter{
 
     usedParameter = usedParameter2+9;
 
-    return usedParameter++;
   }
 
 }
