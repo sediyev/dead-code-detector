@@ -1,5 +1,6 @@
 package com.aurea.service.finder;
 
+import static com.aurea.service.finder.FinderFilters.notUsed;
 import static java.util.stream.Collectors.toList;
 
 import com.aurea.model.DeadCodeType;
@@ -24,14 +25,10 @@ public class UnusedVariableFinder implements DeadCodeFinder {
     Entity[] privateVariables = udb.ents("private variable ~unresolved ~unknown");
 
     return Arrays.stream(privateVariables)
-        .filter(this::variableIsNotUsed)
+        .filter(notUsed())
         .map(entity -> DeadCodeFinder.getUnusedUnderstandEntity(entity, getType()))
     .collect(toList());
 
-  }
-
-  private boolean variableIsNotUsed(Entity entity) {
-    return entity.refs("useby", null, false).length == 0;
   }
 
   @Override

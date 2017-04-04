@@ -1,5 +1,6 @@
 package com.aurea.service.finder;
 
+import static com.aurea.service.finder.FinderFilters.notCalled;
 import static java.util.stream.Collectors.toList;
 
 import com.aurea.model.DeadCodeType;
@@ -24,11 +25,14 @@ public class UnusedFunctionFinder implements DeadCodeFinder{
     Entity[] privateVariables = udb.ents("private method ~constructor ~unresolved ~unknown");
 
     return Arrays.stream(privateVariables)
-        .filter(entity -> entity.refs("callby", null, false).length == 0)
+        .filter(notCalled())
         .filter(this::notLambdaFunction)
         .map(entity -> DeadCodeFinder.getUnusedUnderstandEntity(entity, getType()))
         .collect(toList());
   }
+
+
+
 
   @Override
   public DeadCodeType getType() {
