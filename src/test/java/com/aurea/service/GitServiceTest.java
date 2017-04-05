@@ -18,19 +18,16 @@ public class GitServiceTest {
   private final GitService gitService = new GitService();
   private final DeadCodeDetectionService deadCodeDetectionService = new DeadCodeDetectionService();
 
-  private final String localGitRepository = "d:\\delete";
-  private final File localDir = new File(localGitRepository);
+  private final File localDir = Files.createTempDir();
   private final String repoUrl = "https://github.com/sediyev/dead-code-detector.git";
 
   @Before
-  public void setup() throws IOException {
-    System.out.println("Resetting directory: "+localGitRepository);
-    FileUtils.cleanDirectory(localDir);
+  public void setup() {
   }
 
   @After
   public void tearDown() throws IOException {
-    System.out.println("Deleting directory");
+    System.out.println("Cleaning temp directory");
     FileUtils.cleanDirectory(localDir);
   }
 
