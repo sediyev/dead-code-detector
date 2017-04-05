@@ -23,7 +23,7 @@ public class UnusedFunctionFinder implements DeadCodeFinder{
 
     LOGGER.info("Processing algorithm :{}", getClass().getSimpleName());
 
-    Entity[] privateVariables = udb.ents("private method ~unresolved ~unknown");
+    Entity[] privateVariables = udb.ents("private method ~constructor ~unresolved ~unknown");
 
     return Arrays.stream(privateVariables)
         .filter(notCalled())
