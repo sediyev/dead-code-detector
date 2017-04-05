@@ -19,7 +19,7 @@ public class FileServiceTest {
   @Test
   public void getUdbPath() {
     File rootFile = Files.createTempDir();
-    String expectedUdbPath = rootFile.getAbsolutePath() + udbFileName;
+    String expectedUdbPath = new File(rootFile, udbFileName).getAbsolutePath();
 
     assertThat(fileService.getUdbPath(rootFile)).isEqualTo(expectedUdbPath);
   }
