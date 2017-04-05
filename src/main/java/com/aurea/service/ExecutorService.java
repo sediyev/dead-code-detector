@@ -65,7 +65,7 @@ public class ExecutorService {
 
         understandService.createUdbDatabase(udbFilePath, rootFile.getAbsolutePath());
 
-        LOGGER.info("Opening udb database");
+        LOGGER.info("Opening udb database: {}", udbFilePath);
         database = Understand.open(udbFilePath);
         LOGGER.info("Opened udb database");
 
@@ -110,4 +110,5 @@ public class ExecutorService {
       throw new GitHubDownloadException(e.getMessage());
     }
   }
+
 }
