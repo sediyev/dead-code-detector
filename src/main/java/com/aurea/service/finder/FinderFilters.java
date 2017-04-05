@@ -2,6 +2,7 @@ package com.aurea.service.finder;
 
 import com.scitools.understand.Entity;
 import java.util.function.Predicate;
+import org.apache.commons.lang3.StringUtils;
 
 class FinderFilters {
 
@@ -21,5 +22,10 @@ class FinderFilters {
 
   static Predicate<Entity> notCalled() {
     return entity -> entity.refs("callby", null, false).length == 0;
+  }
+
+  // In Understand api lambda function name starts with .(lambda
+  static Predicate<Entity> notLambda() {
+    return entity -> !StringUtils.contains(entity.name(), "(lambda");
   }
 }
