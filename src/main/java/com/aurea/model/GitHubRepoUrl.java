@@ -18,7 +18,6 @@ public class GitHubRepoUrl {
     this.repoUrl = parseURL(urlValue);
   }
 
-
   private URL parseURL(String urlValue) {
     try {
       return new URL(urlValue);
@@ -31,10 +30,6 @@ public class GitHubRepoUrl {
   @JsonProperty("url")
   public URL getRepoUrl() {
     return repoUrl;
-  }
-
-  public void setRepoUrl(URL repoUrl) {
-    this.repoUrl = repoUrl;
   }
 
   @Override
