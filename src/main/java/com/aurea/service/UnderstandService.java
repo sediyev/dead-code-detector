@@ -36,7 +36,7 @@ public class UnderstandService {
   public void createUdbDatabase(String udbSource, String projectSource)
       throws InterruptedException, TimeoutException, IOException {
 
-    LOGGER.info("Creating udb db with udbSource:{}, projectSourcec: {}", udbSource, projectSource);
+    LOGGER.info("Creating udb db with udbSource:{}, projectSource: {}", udbSource, projectSource);
 
     executeProcess(udbSource, projectSource);
 
@@ -58,7 +58,6 @@ public class UnderstandService {
         .execute();
   }
 
-
   /**
    * Executes DeadCodeOccurrence finder algorithms
    * @param db .udb Understand Database
@@ -77,10 +76,15 @@ public class UnderstandService {
         .flatMap(deadCodeFinder -> deadCodeFinder.findAll(db).stream())
         .collect(Collectors.toList());
 
+    return removeTempFolderPrefixFromFileNames(rootSourceDir, deadCodeList);
+
+  }
+
+  private List<UnusedUnderstandEntity> removeTempFolderPrefixFromFileNames(String rootSourceDir,
+      List<UnusedUnderstandEntity> deadCodeList) {
     return deadCodeList.stream()
         .map(unusedUnderstandEntity -> makeFileNamePathRelativeToRoot(unusedUnderstandEntity, rootSourceDir))
         .collect(Collectors.toList());
-
   }
 
   private UnusedUnderstandEntity makeFileNamePathRelativeToRoot(UnusedUnderstandEntity entity, String rootSourceDir){
@@ -92,6 +96,5 @@ public class UnderstandService {
     return entity;
 
   }
-
 
 }
