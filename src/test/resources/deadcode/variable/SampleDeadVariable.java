@@ -11,7 +11,7 @@ public class SampleDeadVariable{
 
   private void use(){
 
-    int unused 3;
+    int unused = 3;
 
     unused = 1;
 
