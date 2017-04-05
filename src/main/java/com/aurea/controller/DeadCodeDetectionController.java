@@ -44,7 +44,7 @@ public class DeadCodeDetectionController {
       notes = "Creates and returns new object to be inspected and starts processing it in the background.",
       response = DeadCodeDetection.class)
   @ResponseBody
-  @RequestMapping(value = "/add", method = POST, produces = APPLICATION_JSON_VALUE)
+  @RequestMapping(value = "/repositories", method = POST, produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url) {
 
     LOGGER.info("Rest call to add model for inspection. url: {}", url);
@@ -52,7 +52,7 @@ public class DeadCodeDetectionController {
     DeadCodeDetection deadCodeDetection = deadCodeDetectionService.create(url);
     executorService.executeDeadCodeDetection(deadCodeDetection);
 
-    return new ResponseEntity<>(deadCodeDetection, HttpStatus.OK);
+    return new ResponseEntity<>(deadCodeDetection, HttpStatus.CREATED);
   }
 
   @ApiOperation(value = "Lists all dead-code occurrences",
@@ -63,29 +63,29 @@ public class DeadCodeDetectionController {
   @RequestMapping(value = "/repositories", method = GET, produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<Collection<DeadCodeDetection>> getRepositories(
       @RequestParam(required = false, defaultValue = "0") Integer page,
-      @RequestParam(required = false, defaultValue = "50") Integer maxCount,
+      @RequestParam(required = false, defaultValue = "50") Integer limit,
       @RequestParam(required = false) DeadCodeDetectionStatus status,
       @RequestParam(required = false) String repoUrl)
 
   {
 
-    if (maxCount < 1 || maxCount > 1000) {
-      maxCount = 1000;
+    if (limit < 1 || limit > 1000) {
+      limit = 1000;
     }
     if (page < 0) {
       page = 0;
     }
 
-    LOGGER.info("Rest call to list all repositories. page: {}, maxCount: {}, repoUrl, status", page,
-        maxCount, repoUrl, status);
+    LOGGER.info("Rest call to list all repositories. page: {}, maxCount: {}, repoUrl: {}, status: {}", page,
+        limit, repoUrl, status);
 
     return new ResponseEntity<>(
-        deadCodeDetectionService.listAll(page, maxCount, status, repoUrl),
+        deadCodeDetectionService.listAll(page, limit, status, repoUrl),
         HttpStatus.OK);
   }
 
   @ApiOperation(value = "Retrieve the repository with the given id.",
-      notes = "In addition getting single repository, status filters are available to sort the data.",
+      notes = "In addition to getting single repository, status filters are available to sort the data.",
       response = UnusedUnderstandEntity.class,
       responseContainer = "List")
   @ResponseBody
