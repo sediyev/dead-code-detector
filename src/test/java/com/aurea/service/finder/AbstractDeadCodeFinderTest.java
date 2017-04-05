@@ -30,7 +30,6 @@ public abstract class AbstractDeadCodeFinderTest {
     udbPath = tempDir.getAbsolutePath() + "\\db.udb";
 
     setProcessTimeOutFieldInUnderstandService();
-
   }
 
   private void setProcessTimeOutFieldInUnderstandService() {
