@@ -2,7 +2,6 @@ package com.aurea.model.state;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.aurea.model.DeadCodeDetection;
 import com.aurea.model.DeadCodeDetectionStatus;
 import com.aurea.util.AbstractDeadCodeDetectionTest;
 import org.junit.Test;
@@ -10,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 public class StateConsumerTest extends AbstractDeadCodeDetectionTest{
-
-  private DeadCodeDetection deadCodeDetection = new DeadCodeDetection(repoUrl);
 
   private final String codeDetectionFailedMessage = "Code Detection Failed";
 
