@@ -74,10 +74,6 @@ public class DeadCodeDetection implements Serializable{
     return gitHubRepoUrl;
   }
 
-  public void setGitHubRepoUrl(GitHubRepoUrl gitHubRepoUrl) {
-    this.gitHubRepoUrl = gitHubRepoUrl;
-  }
-
   @JsonProperty("status")
   public DeadCodeDetectionStatus getDeadCodeDetectionStatus() {
     return deadCodeDetectionStatus;
