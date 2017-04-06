@@ -1,10 +1,8 @@
 package com.aurea.service;
 
-import com.aurea.exception.GitHubDownloadException;
 import com.aurea.model.DeadCodeDetection;
 import com.aurea.model.UnusedUnderstandEntity;
 import com.aurea.model.state.CompletedState;
-import com.aurea.model.state.DownloadingRepoState;
 import com.aurea.model.state.FailedState;
 import com.aurea.model.state.ProcessingState;
 import com.aurea.model.state.WaitingInQueueState;
@@ -12,12 +10,10 @@ import com.google.common.io.Files;
 import com.scitools.understand.Database;
 import com.scitools.understand.Understand;
 import java.io.File;
-import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -49,7 +45,7 @@ public class ExecutorService {
   public void executeDeadCodeDetection(DeadCodeDetection deadCodeDetection) {
 
     File rootFile = Files.createTempDir();
-    downloadRepo(deadCodeDetection, rootFile);
+    gitService.downloadRepo(deadCodeDetection, rootFile);
 
     deadCodeDetection.setState(new WaitingInQueueState());
     executor.submit(() -> {
@@ -97,18 +93,6 @@ public class ExecutorService {
         fileService.tryToCleanRootDirectory(rootFile);
       }
     });
-  }
-
-  private void downloadRepo(DeadCodeDetection deadCodeDetection, File localDir) {
-
-    LOGGER.info("Downloading repository for :{}", deadCodeDetection.getId());
-    deadCodeDetection.setState(new DownloadingRepoState());
-
-    try {
-      gitService.cloneRepo(deadCodeDetection, localDir);
-    } catch (GitAPIException | IOException e) {
-      throw new GitHubDownloadException(e.getMessage());
-    }
   }
 
 }

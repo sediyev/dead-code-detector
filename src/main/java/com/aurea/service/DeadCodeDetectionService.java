@@ -1,10 +1,12 @@
 package com.aurea.service;
 
+import com.aurea.exception.ProcessingNotFinishedException;
+import com.aurea.exception.RepoNotFoundException;
+import com.aurea.exception.RepoProcessingFailedException;
 import com.aurea.model.DeadCodeDetection;
 import com.aurea.model.DeadCodeDetectionStatus;
 import com.aurea.model.DeadCodeType;
 import com.aurea.model.UnusedUnderstandEntity;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,13 @@ public class DeadCodeDetectionService {
   private static AtomicLong idGenerator = new AtomicLong(1L);
 
   private static final int initialHashMapCapacity = 1_000;
-  private static Map<Long, DeadCodeDetection> deadCodeDetectionByIdMap = new ConcurrentHashMap<>(initialHashMapCapacity);
+  private static Map<Long, DeadCodeDetection> deadCodeDetectionByIdMap = new ConcurrentHashMap<>(
+      initialHashMapCapacity);
+
+  public void removeAllRepositories(){
+    deadCodeDetectionByIdMap.clear();
+    idGenerator.set(1L);
+  }
 
   public DeadCodeDetection create(String url) {
 
@@ -36,9 +44,37 @@ public class DeadCodeDetectionService {
     return deadCodeDetection;
   }
 
-  public List<UnusedUnderstandEntity> get(Long id) {
+  public DeadCodeDetection get(Long id){
     DeadCodeDetection deadCodeDetection = deadCodeDetectionByIdMap.get(id);
-    return deadCodeDetection == null ? new ArrayList<>() : deadCodeDetection.getDeadCodeList();
+
+    checkIfRepoIsFound(deadCodeDetection);
+
+    return deadCodeDetection;
+  }
+
+  private List<UnusedUnderstandEntity> getWithStatusCheck(Long id) {
+    DeadCodeDetection deadCodeDetection = get(id);
+
+    checkIfRepoProcessingIsFinished(deadCodeDetection);
+
+    return deadCodeDetection.getDeadCodeList();
+  }
+
+  private void checkIfRepoIsFound(DeadCodeDetection deadCodeDetection) {
+    if (deadCodeDetection == null) {
+      throw new RepoNotFoundException();
+    }
+  }
+  private void checkIfRepoProcessingIsFinished(DeadCodeDetection deadCodeDetection) {
+
+    DeadCodeDetectionStatus currentStatus = deadCodeDetection.getDeadCodeDetectionStatus();
+    if(currentStatus == DeadCodeDetectionStatus.FAILED){
+      throw new RepoProcessingFailedException();
+    }
+
+    if (currentStatus != DeadCodeDetectionStatus.COMPLETED) {
+      throw new ProcessingNotFinishedException(currentStatus);
+    }
   }
 
   public Map<DeadCodeDetectionStatus, Long> summary() {
@@ -49,7 +85,17 @@ public class DeadCodeDetectionService {
   }
 
   public List<UnusedUnderstandEntity> get(Long id, DeadCodeType deadCodeType) {
-    List<UnusedUnderstandEntity> entityList = get(id);
+    List<UnusedUnderstandEntity> entityList = getWithStatusCheck(id);
+
+    return filterListByDeadCodeType(deadCodeType, entityList);
+  }
+
+  private List<UnusedUnderstandEntity> filterListByDeadCodeType(DeadCodeType deadCodeType,
+      List<UnusedUnderstandEntity> entityList) {
+
+    if (deadCodeType == null) {
+      return entityList;
+    }
 
     return entityList.stream()
         .filter(unusedUnderstandEntity -> unusedUnderstandEntity.getDeadCodeType() == deadCodeType)
