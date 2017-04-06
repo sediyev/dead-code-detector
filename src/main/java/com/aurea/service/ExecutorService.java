@@ -77,7 +77,6 @@ public class ExecutorService {
 
     deadCodeDetection.setState(new WaitingInQueueState());
     executor.submit(() -> {
-
       LOGGER.info("Started synchronous processing of: {}", deadCodeDetection.getId());
 
       Database database = null;
