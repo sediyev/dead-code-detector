@@ -9,7 +9,9 @@ import com.aurea.model.state.WaitingInQueueState;
 import com.google.common.io.Files;
 import com.scitools.understand.Database;
 import com.scitools.understand.Understand;
+import com.scitools.understand.UnderstandException;
 import java.io.File;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -40,6 +42,32 @@ public class ExecutorService {
     this.understandService = understandService;
   }
 
+  private Database createAndGetUdbDatabase(File rootFile, DeadCodeDetection deadCodeDetection)
+      throws InterruptedException, IOException, TimeoutException, UnderstandException {
+
+    deadCodeDetection.setState(new ProcessingState());
+    String udbFilePath = fileService.getUdbPath(rootFile);
+
+    understandService.createUdbDatabase(udbFilePath, rootFile.getAbsolutePath());
+
+    LOGGER.info("Opening udb database: {}", udbFilePath);
+    Database database = Understand.open(udbFilePath);
+    LOGGER.info("Opened udb database");
+
+    return database;
+  }
+
+  private void findAndSetDeadCodes(DeadCodeDetection deadCodeDetection,
+      Database database, File rootFile) {
+    List<UnusedUnderstandEntity> deadCodeList = understandService
+        .findAllDeadCode(database, rootFile.getAbsolutePath());
+
+    LOGGER.info("Finished processing algorithms: {}", deadCodeDetection.getId());
+
+    deadCodeDetection.setDeadCodeList(deadCodeList);
+    deadCodeDetection.setState(new CompletedState());
+  }
+
   // Non-blocking call to download repo, create understand db and run algorithms
   @Async
   public void executeDeadCodeDetection(DeadCodeDetection deadCodeDetection) {
@@ -55,23 +83,10 @@ public class ExecutorService {
       Database database = null;
       try {
 
-        deadCodeDetection.setState(new ProcessingState());
+        database = createAndGetUdbDatabase(rootFile, deadCodeDetection);
 
-        String udbFilePath = fileService.getUdbPath(rootFile);
+        findAndSetDeadCodes(deadCodeDetection, database, rootFile);
 
-        understandService.createUdbDatabase(udbFilePath, rootFile.getAbsolutePath());
-
-        LOGGER.info("Opening udb database: {}", udbFilePath);
-        database = Understand.open(udbFilePath);
-        LOGGER.info("Opened udb database");
-
-        List<UnusedUnderstandEntity> deadCodeList = understandService
-            .findAllDeadCode(database, rootFile.getAbsolutePath());
-
-        LOGGER.info("Finished processing algorithms: {}", deadCodeDetection.getId());
-
-        deadCodeDetection.setDeadCodeList(deadCodeList);
-        deadCodeDetection.setState(new CompletedState());
       } catch (TimeoutException e) {
         deadCodeDetection.setState(new FailedState("Timed out while creating udb database"));
         LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
