@@ -12,6 +12,7 @@ import com.aurea.service.DeadCodeDetectionService;
 import com.aurea.service.ExecutorService;
 import io.swagger.annotations.ApiOperation;
 import java.lang.invoke.MethodHandles;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/deadcode/")
@@ -52,7 +54,14 @@ public class DeadCodeDetectionController {
     DeadCodeDetection deadCodeDetection = deadCodeDetectionService.create(url);
     executorService.executeDeadCodeDetection(deadCodeDetection);
 
-    return new ResponseEntity<>(deadCodeDetection, HttpStatus.CREATED);
+    return ResponseEntity.created(buildLocation(deadCodeDetection.getId())).build();
+  }
+
+  private URI buildLocation(Long id) {
+    return ServletUriComponentsBuilder.fromCurrentRequest()
+        .path("/{id}")
+        .buildAndExpand(id)
+        .toUri();
   }
 
   @ApiOperation(value = "Lists all dead-code occurrences",
@@ -65,9 +74,7 @@ public class DeadCodeDetectionController {
       @RequestParam(required = false, defaultValue = "0") Integer page,
       @RequestParam(required = false, defaultValue = "50") Integer limit,
       @RequestParam(required = false) DeadCodeDetectionStatus status,
-      @RequestParam(required = false) String repoUrl)
-
-  {
+      @RequestParam(required = false) String repoUrl) {
 
     if (limit < 1 || limit > 1000) {
       limit = 1000;
@@ -76,12 +83,12 @@ public class DeadCodeDetectionController {
       page = 0;
     }
 
-    LOGGER.info("Rest call to list all repositories. page: {}, maxCount: {}, repoUrl: {}, status: {}", page,
-        limit, repoUrl, status);
+    LOGGER
+        .info("Rest call to list all repositories. page: {}, maxCount: {}, repoUrl: {}, status: {}",
+            page, limit, repoUrl, status);
 
-    return new ResponseEntity<>(
-        deadCodeDetectionService.listAll(page, limit, status, repoUrl),
-        HttpStatus.OK);
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(deadCodeDetectionService.listAll(page, limit, status, repoUrl));
   }
 
   @ApiOperation(value = "Retrieve the repository with the given id.",
@@ -95,11 +102,15 @@ public class DeadCodeDetectionController {
 
     LOGGER.info("Rest call to list repository by id: {}, filter: {}", id, deadCodeType);
 
-    if (deadCodeType == null) {
-      return new ResponseEntity<>(deadCodeDetectionService.get(id), HttpStatus.FOUND);
-    }
+    return ResponseEntity.status(HttpStatus.OK).body(deadCodeDetectionService.get(id, deadCodeType));
+  }
 
-    return new ResponseEntity<>(deadCodeDetectionService.get(id, deadCodeType), HttpStatus.FOUND);
+  @RequestMapping(value = "/repositories/{id}/status", method = GET, produces = APPLICATION_JSON_VALUE)
+  public ResponseEntity<DeadCodeDetection> getRepositoryById(@PathVariable("id") Long id) {
+
+    LOGGER.info("Rest call to get deadCodeDetection: {}", id);
+
+    return ResponseEntity.status(HttpStatus.OK).body(deadCodeDetectionService.get(id));
   }
 
   @ApiOperation(value = "Lists frequency of each state filter",
@@ -110,7 +121,16 @@ public class DeadCodeDetectionController {
 
     LOGGER.info("Rest call to list repository summary");
 
-    return new ResponseEntity<>(deadCodeDetectionService.summary(), HttpStatus.FOUND);
+    return new ResponseEntity<>(deadCodeDetectionService.summary(), HttpStatus.OK);
   }
 
+
+//  @ExceptionHandler(NotFoundException.class)
+//  public ResponseEntity<Exception> handleNoResultException(
+//      NotFoundException nre) {
+//
+//    LOGGER.error("Something bad happened");
+//
+//    return new ResponseEntity<Exception>(HttpStatus.NOT_FOUND);
+//  }
 }
