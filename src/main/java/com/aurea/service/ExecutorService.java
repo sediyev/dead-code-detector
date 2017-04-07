@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class ExecutorService {
     this.understandService = understandService;
   }
 
-  private Database createAndGetUdbDatabase(File rootFile, DeadCodeDetection deadCodeDetection)
+  Database createAndGetUdbDatabase(File rootFile, DeadCodeDetection deadCodeDetection)
       throws InterruptedException, IOException, TimeoutException, UnderstandException {
 
     deadCodeDetection.setState(new ProcessingState());
@@ -57,7 +58,7 @@ public class ExecutorService {
     return database;
   }
 
-  private void findAndSetDeadCodes(DeadCodeDetection deadCodeDetection,
+  void findAndSetDeadCodes(DeadCodeDetection deadCodeDetection,
       Database database, File rootFile) {
     List<UnusedUnderstandEntity> deadCodeList = understandService
         .findAllDeadCode(database, rootFile.getAbsolutePath());
@@ -70,43 +71,50 @@ public class ExecutorService {
 
   // Non-blocking call to download repo, create understand db and run algorithms
   @Async
-  public void executeDeadCodeDetection(DeadCodeDetection deadCodeDetection) {
+  public Future<?> executeDeadCodeDetection(DeadCodeDetection deadCodeDetection) {
 
     File rootFile = Files.createTempDir();
     gitService.downloadRepo(deadCodeDetection, rootFile);
 
+    return addToQueue(deadCodeDetection, rootFile);
+  }
+
+  Future<?> addToQueue(DeadCodeDetection deadCodeDetection, File rootFile) {
     deadCodeDetection.setState(new WaitingInQueueState());
-    executor.submit(() -> {
-      LOGGER.info("Started synchronous processing of: {}", deadCodeDetection.getId());
 
-      Database database = null;
-      try {
+    return executor.submit(() -> executeDeadCodeDetection(deadCodeDetection, rootFile));
+  }
 
-        database = createAndGetUdbDatabase(rootFile, deadCodeDetection);
+  void executeDeadCodeDetection(DeadCodeDetection deadCodeDetection, File rootFile) {
+    LOGGER.info("Started synchronous processing of: {}", deadCodeDetection.getId());
 
-        findAndSetDeadCodes(deadCodeDetection, database, rootFile);
+    Database database = null;
+    try {
+      database = createAndGetUdbDatabase(rootFile, deadCodeDetection);
+      findAndSetDeadCodes(deadCodeDetection, database, rootFile);
 
-      } catch (TimeoutException e) {
-        deadCodeDetection.setState(new FailedState("Timed out while creating udb database"));
-        LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
-      } catch (InvalidExitValueException e) {
-        deadCodeDetection.setState(new FailedState("Creating udb database failed."));
-        LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+    } catch (TimeoutException e) {
+      deadCodeDetection.setState(new FailedState("Timed out while creating udb database"));
+      LOGGER.error("TimeoutException executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+    } catch (InvalidExitValueException e) {
+      deadCodeDetection.setState(new FailedState("Creating udb database failed."));
+      LOGGER.error("InvalidExitValueException executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
 
-      } catch (Exception e) {
-        deadCodeDetection.setState(new FailedState(e.getMessage()));
-        LOGGER.error("Error executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
+    } catch (Exception e) {
+      deadCodeDetection.setState(new FailedState(e.getMessage()));
+      LOGGER.error("Exception executing deadCodeDetection with id: " + deadCodeDetection.getId(), e);
 
-      } finally {
+    } finally {
 
-        // order of cleanup commands are important. Folder cannot be deleted while udb database is open
-        if (database != null) {
-          database.close();
-        }
-
-        fileService.tryToCleanRootDirectory(rootFile);
+      // order of cleanup commands are important. Folder cannot be deleted while udb database is open
+      if (database != null) {
+        database.close();
       }
-    });
+
+      fileService.tryToCleanRootDirectory(rootFile);
+    }
+
+
   }
 
 }
