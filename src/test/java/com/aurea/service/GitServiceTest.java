@@ -23,7 +23,6 @@ public class GitServiceTest extends AbstractDeadCodeDetectionTest{
   private  GitService gitService;
 
   private File localDir;
-  private final String repoUrl = "https://github.com/sediyev/dead-code-detector.git";
 
   @Before
   public void setup() {
@@ -63,13 +62,9 @@ public class GitServiceTest extends AbstractDeadCodeDetectionTest{
   @Test
   public void cloneRepositoryTest() throws GitAPIException, IOException {
 
-    File localDir = Files.createTempDir();
-
     System.out.println("Cloning git repository to local directory");
 
     gitService.cloneRepo(deadCodeDetection, localDir);
-
-    FileUtils.cleanDirectory(localDir);
 
   }
 
