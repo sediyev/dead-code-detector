@@ -2,8 +2,9 @@ package com.aurea.service;
 
 import com.aurea.exception.GitHubDownloadException;
 import com.aurea.model.DeadCodeDetection;
-import com.aurea.model.GitHubRepoUrl;
+import com.aurea.model.GitHubRepo;
 import com.aurea.model.state.DownloadingRepoState;
+import com.aurea.model.state.FailedState;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -27,6 +28,8 @@ public class GitService {
     try {
       cloneRepo(deadCodeDetection, localDir);
     } catch (GitAPIException | IOException e) {
+      deadCodeDetection.setState(new FailedState("Error downloading git project!"));
+      LOGGER.error("Error processing deadCodeDetection: {}", deadCodeDetection.getId());
       throw new GitHubDownloadException(e.getMessage());
     }
   }
@@ -34,15 +37,23 @@ public class GitService {
   void cloneRepo(DeadCodeDetection deadCodeDetection, File localDir)
       throws GitAPIException, IOException {
 
-    GitHubRepoUrl gitHubRepoUrl = deadCodeDetection.getGitHubRepoUrl();
-    String repoUrl = gitHubRepoUrl.getRepoUrl().toString();
+    GitHubRepo gitHubRepo = deadCodeDetection.getGitHubRepo();
+    String repoUrl = gitHubRepo.getRepoUrl().toString();
+    String branch  = gitHubRepo.getBranch();
 
     Git git = Git.cloneRepository()
         .setDirectory(localDir)
+        .setBranch(branch)
         .setURI(repoUrl)
         .call();
 
     git.getRepository().close();
+
+    if(localDir.list().length <= 1){
+      deadCodeDetection.setState(new FailedState("Branch not found!"));
+      throw new GitHubDownloadException("Branch not found!" + branch);
+    }
+
   }
 
 }
