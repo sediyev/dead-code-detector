@@ -126,7 +126,7 @@ public class DeadCodeDetectionService {
 
     return map.values().stream()
         .filter(deadCodeDetection -> StringUtils
-            .equals(deadCodeDetection.getGitHubRepo().getRepoUrlValue(), url))
+            .equals(deadCodeDetection.getGitHubRepo().getUrlValue(), url))
         .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
   }
 
