@@ -21,7 +21,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class GitServiceTest extends AbstractDeadCodeDetectionTest{
 
   private  GitService gitService;
-  private final DeadCodeDetectionService deadCodeDetectionService = new DeadCodeDetectionService();
 
   private File localDir;
   private final String repoUrl = "https://github.com/sediyev/dead-code-detector.git";
