@@ -15,7 +15,7 @@ import org.apache.commons.lang3.Validate;
 public class DeadCodeDetection implements Serializable{
 
   private Long id;
-  private GitHubRepoUrl gitHubRepoUrl;
+  private GitHubRepo gitHubRepo;
   private LocalDateTime timeRepoIsAdded;
   private LocalDateTime executionStartTime;
   private LocalDateTime executionEndTime;
@@ -26,10 +26,10 @@ public class DeadCodeDetection implements Serializable{
 
   private String errorMessage;
 
-  public DeadCodeDetection(String urlValue) {
+  public DeadCodeDetection(String urlValue, String branch) {
 
     Validate.notBlank(urlValue, "Url cannot be empty!");
-    this.gitHubRepoUrl = new GitHubRepoUrl(urlValue);
+    this.gitHubRepo = new GitHubRepo(urlValue, branch);
 
     this.setState(new InitialState());
 
@@ -70,8 +70,8 @@ public class DeadCodeDetection implements Serializable{
     this.timeRepoIsAdded = timeRepoIsAdded;
   }
 
-  public GitHubRepoUrl getGitHubRepoUrl() {
-    return gitHubRepoUrl;
+  public GitHubRepo getGitHubRepo() {
+    return gitHubRepo;
   }
 
   @JsonProperty("status")
