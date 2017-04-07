@@ -1,6 +1,7 @@
 package com.aurea.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.beans.Transient;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,12 +35,13 @@ public class GitHubRepo {
     return repoUrl;
   }
 
+  @Transient
+  public String getUrlValue() {
+    return repoUrl.toString();
+  }
+
   public String getBranch() {
     return branch;
   }
 
-  @Override
-  public String toString() {
-    return repoUrl.toString();
-  }
 }
