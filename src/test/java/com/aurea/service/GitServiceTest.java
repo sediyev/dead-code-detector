@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.aurea.exception.GitHubDownloadException;
-import com.aurea.model.DeadCodeDetection;
 import com.aurea.model.DeadCodeDetectionStatus;
 import com.aurea.util.AbstractDeadCodeDetectionTest;
 import com.google.common.io.Files;
@@ -14,7 +13,6 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,18 +59,18 @@ public class GitServiceTest extends AbstractDeadCodeDetectionTest{
 
   }
 
-  // As cloning git repository from Github is slow; this test is not intended for automatic tests
-  @Ignore("Takes too long")
+  // As cloning git repository from Github is slow; this test will take longer to execute
+//  @Ignore("Takes too long")
   @Test
   public void cloneRepositoryTest() throws GitAPIException, IOException {
 
     File localDir = Files.createTempDir();
 
     System.out.println("Cloning git repository to local directory");
-    DeadCodeDetection deadCode = deadCodeDetectionService.create(repoUrl);
-    System.out.println(deadCode.getGitHubRepoUrl().getRepoUrl());
 
-    gitService.cloneRepo(deadCode, localDir);
+    gitService.cloneRepo(deadCodeDetection, localDir);
+
+    FileUtils.cleanDirectory(localDir);
 
   }
 
