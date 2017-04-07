@@ -41,7 +41,7 @@ public class Application {
 
     return new ApiInfo(
         "Dead Code Detection",
-        "This API crawls given github repositories and detects dead code among them.",
+        "This API crawls given git repositories and detects dead code among them.",
         "v1.0",
         "",
         new Contact("Emin Sadiyev", "", ""),
