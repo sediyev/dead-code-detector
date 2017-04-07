@@ -40,7 +40,7 @@ public class Application {
   private ApiInfo apiInfo() {
 
     return new ApiInfo(
-        "Dead Code DeadCodeDetection",
+        "Dead Code Detection",
         "This API crawls given github repositories and detects dead code among them.",
         "v1.0",
         "",
