@@ -107,6 +107,9 @@ public class DeadCodeDetectionController {
         .body(deadCodeDetectionService.get(id, deadCodeType));
   }
 
+  @ApiOperation(value = "Returns the status of current repository",
+      notes = "Returns all the relevant information about the repository.",
+      response = DeadCodeDetection.class)
   @RequestMapping(value = "/repositories/{id}/status", method = GET, produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<DeadCodeDetection> getRepositoryById(@PathVariable("id") Long id) {
 
