@@ -89,7 +89,8 @@ public class DeadCodeDetectionControllerTest extends AbstractDeadCodeDetectionTe
     int id = 1;
     mockMvc.perform(get(url + "/status"))
         .andExpect(jsonPath("$.id", is(id)))
-        .andExpect(jsonPath("$.gitHubRepoUrl.url", is(repoUrl)))
+        .andExpect(jsonPath("$.gitHubRepo.url", is(repoUrl)))
+        .andExpect(jsonPath("$.gitHubRepo.branch", is(deadCodeDetection.getGitHubRepo().getBranch())))
         .andExpect(jsonPath("$.timeRepoIsAdded").exists())
         .andExpect(jsonPath("$.status").exists())
         .andExpect(jsonPath("$.deadCodeList").doesNotExist());
@@ -109,7 +110,8 @@ public class DeadCodeDetectionControllerTest extends AbstractDeadCodeDetectionTe
         .andExpect(jsonPath("$.[0].id", is(1)))
         .andExpect(jsonPath("$.[0].status").exists())
         .andExpect(jsonPath("$.[0].timeRepoIsAdded").exists())
-        .andExpect(jsonPath("$.[0].gitHubRepoUrl.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.branch", is(deadCodeDetection.getGitHubRepo().getBranch())))
     ;
   }
 
@@ -127,7 +129,8 @@ public class DeadCodeDetectionControllerTest extends AbstractDeadCodeDetectionTe
         .andExpect(jsonPath("$.[0].id", is(1)))
         .andExpect(jsonPath("$.[0].status").exists())
         .andExpect(jsonPath("$.[0].timeRepoIsAdded").exists())
-        .andExpect(jsonPath("$.[0].gitHubRepoUrl.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.branch", is(deadCodeDetection.getGitHubRepo().getBranch())))
     ;
   }
 
@@ -145,7 +148,8 @@ public class DeadCodeDetectionControllerTest extends AbstractDeadCodeDetectionTe
         .andExpect(jsonPath("$.[0].id", is(1)))
         .andExpect(jsonPath("$.[0].status").exists())
         .andExpect(jsonPath("$.[0].timeRepoIsAdded").exists())
-        .andExpect(jsonPath("$.[0].gitHubRepoUrl.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.url", is(repoUrl)))
+        .andExpect(jsonPath("$.[0].gitHubRepo.branch", is(deadCodeDetection.getGitHubRepo().getBranch())))
     ;
   }
 
