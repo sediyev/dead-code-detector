@@ -34,9 +34,9 @@ public class DeadCodeDetectionService {
     idGenerator.set(1L);
   }
 
-  public DeadCodeDetection create(String url) {
+  public DeadCodeDetection create(String url, String branch) {
 
-    DeadCodeDetection deadCodeDetection = new DeadCodeDetection(url);
+    DeadCodeDetection deadCodeDetection = new DeadCodeDetection(url, branch);
     deadCodeDetection.setId(idGenerator.getAndIncrement());
 
     deadCodeDetectionByIdMap.put(deadCodeDetection.getId(), deadCodeDetection);
@@ -126,7 +126,7 @@ public class DeadCodeDetectionService {
 
     return map.values().stream()
         .filter(deadCodeDetection -> StringUtils
-            .equals(deadCodeDetection.getGitHubRepoUrl().toString(), url))
+            .equals(deadCodeDetection.getGitHubRepo().toString(), url))
         .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
   }
 
