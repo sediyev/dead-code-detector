@@ -47,11 +47,12 @@ public class DeadCodeDetectionController {
       response = DeadCodeDetection.class)
   @ResponseBody
   @RequestMapping(value = "/repositories", method = POST, produces = APPLICATION_JSON_VALUE)
-  public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url) {
+  public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url,
+      @RequestParam(defaultValue = "master") String branch) {
 
-    LOGGER.info("Rest call to add model for inspection. url: {}", url);
+    LOGGER.info("Rest call to add model for inspection. url: {}, branch: {}", url, branch);
 
-    DeadCodeDetection deadCodeDetection = deadCodeDetectionService.create(url);
+    DeadCodeDetection deadCodeDetection = deadCodeDetectionService.create(url, branch);
     executorService.executeDeadCodeDetection(deadCodeDetection);
 
     return ResponseEntity.created(buildLocation(deadCodeDetection.getId())).build();
@@ -102,7 +103,8 @@ public class DeadCodeDetectionController {
 
     LOGGER.info("Rest call to list repository by id: {}, filter: {}", id, deadCodeType);
 
-    return ResponseEntity.status(HttpStatus.OK).body(deadCodeDetectionService.get(id, deadCodeType));
+    return ResponseEntity.status(HttpStatus.OK)
+        .body(deadCodeDetectionService.get(id, deadCodeType));
   }
 
   @RequestMapping(value = "/repositories/{id}/status", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -123,7 +125,6 @@ public class DeadCodeDetectionController {
 
     return new ResponseEntity<>(deadCodeDetectionService.summary(), HttpStatus.OK);
   }
-
 
 //  @ExceptionHandler(NotFoundException.class)
 //  public ResponseEntity<Exception> handleNoResultException(
