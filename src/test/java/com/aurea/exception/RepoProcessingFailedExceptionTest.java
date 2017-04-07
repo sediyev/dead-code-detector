@@ -7,11 +7,14 @@ import org.junit.Test;
 
 public class RepoProcessingFailedExceptionTest {
 
+  private static final String PROCESSING_FAILED = "Processing Failed";
+
   @Test
   public void messageTest() {
     assertThatThrownBy(() -> {
-      throw new RepoProcessingFailedException();
+      throw new RepoProcessingFailedException(PROCESSING_FAILED);
     }).isInstanceOf(WebApplicationException.class)
+        .hasMessage(PROCESSING_FAILED)
         .hasNoCause();
   }
 }
