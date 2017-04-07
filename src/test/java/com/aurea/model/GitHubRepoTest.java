@@ -8,23 +8,24 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class GitHubRepoUrlTest extends AbstractDeadCodeDetectionTest{
+public class GitHubRepoTest extends AbstractDeadCodeDetectionTest{
 
   private final String invalidUrl = "invalid";
+  private final static String BRANCH = "master";
   private final String notAValidUrlMessage = "not a valid url";
 
   @Test
   public void invalidUrlTest(){
-    assertThatThrownBy(() -> new GitHubRepoUrl(invalidUrl))
+    assertThatThrownBy(() -> new GitHubRepo(invalidUrl, BRANCH))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining(notAValidUrlMessage);
   }
 
   @Test
   public void toStringTest(){
-    GitHubRepoUrl gitHubRepoUrl = new GitHubRepoUrl(repoUrl);
+    GitHubRepo gitHubRepo = new GitHubRepo(repoUrl, BRANCH);
 
-    assertThat(gitHubRepoUrl.toString()).isEqualTo(repoUrl);
+    assertThat(gitHubRepo.getUrlValue()).isEqualTo(repoUrl);
   }
 
 
