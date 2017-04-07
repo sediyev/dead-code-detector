@@ -69,7 +69,7 @@ public class DeadCodeDetectionService {
 
     DeadCodeDetectionStatus currentStatus = deadCodeDetection.getDeadCodeDetectionStatus();
     if(currentStatus == DeadCodeDetectionStatus.FAILED){
-      throw new RepoProcessingFailedException();
+      throw new RepoProcessingFailedException(deadCodeDetection.getErrorMessage());
     }
 
     if (currentStatus != DeadCodeDetectionStatus.COMPLETED) {
@@ -126,7 +126,7 @@ public class DeadCodeDetectionService {
 
     return map.values().stream()
         .filter(deadCodeDetection -> StringUtils
-            .equals(deadCodeDetection.getGitHubRepo().toString(), url))
+            .equals(deadCodeDetection.getGitHubRepo().getRepoUrlValue(), url))
         .collect(Collectors.toMap(DeadCodeDetection::getId, Function.identity()));
   }
 
