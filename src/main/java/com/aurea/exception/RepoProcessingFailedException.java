@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Repository processing failed.")
 public class RepoProcessingFailedException extends WebApplicationException{
-  public RepoProcessingFailedException(){
-    super(410);
+  public RepoProcessingFailedException(String errorMessage){
+    super(errorMessage, 410);
   }
 
 }
