@@ -9,8 +9,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.ws.rs.Produces;
 import org.apache.commons.lang3.Validate;
 
+@Produces("application/json")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeadCodeDetection implements Serializable{
 
@@ -25,6 +27,9 @@ public class DeadCodeDetection implements Serializable{
   private List<UnusedUnderstandEntity> deadCodeList;
 
   private String errorMessage;
+
+  public DeadCodeDetection(){
+  }
 
   public DeadCodeDetection(String urlValue, String branch) {
 
