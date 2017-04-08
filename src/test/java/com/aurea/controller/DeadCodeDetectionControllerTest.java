@@ -85,10 +85,8 @@ public class DeadCodeDetectionControllerTest extends AbstractDeadCodeDetectionTe
 
     String url = postSampleRepository();
 
-    // TODO get id in a dynamic way
-    int id = 1;
     mockMvc.perform(get(url + "/status"))
-        .andExpect(jsonPath("$.id", is(id)))
+        .andExpect(jsonPath("$.id", is(deadCodeDetection.getId())))
         .andExpect(jsonPath("$.gitHubRepo.url", is(repoUrl)))
         .andExpect(jsonPath("$.gitHubRepo.branch", is(deadCodeDetection.getGitHubRepo().getBranch())))
         .andExpect(jsonPath("$.timeRepoIsAdded").exists())
