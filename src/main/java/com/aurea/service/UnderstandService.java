@@ -1,11 +1,19 @@
 package com.aurea.service;
 
+import static com.aurea.util.FileUtils.getUdbPath;
+
+import com.aurea.model.DeadCodeDetection;
 import com.aurea.model.UnusedUnderstandEntity;
+import com.aurea.model.state.CompletedState;
+import com.aurea.model.state.ProcessingState;
 import com.aurea.service.finder.DeadCodeFinder;
 import com.aurea.service.finder.UnusedFunctionFinder;
 import com.aurea.service.finder.UnusedFunctionParameterFinder;
 import com.aurea.service.finder.UnusedVariableFinder;
 import com.scitools.understand.Database;
+import com.scitools.understand.Understand;
+import com.scitools.understand.UnderstandException;
+import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
@@ -26,6 +34,21 @@ public class UnderstandService {
 
   @Value("${command.timeout:150}")
   String processTimeOut;
+
+  Database createAndGetUdbDatabase(File rootFile, DeadCodeDetection deadCodeDetection)
+      throws InterruptedException, IOException, TimeoutException, UnderstandException {
+
+    deadCodeDetection.setState(new ProcessingState());
+    String udbFilePath = getUdbPath(rootFile);
+
+    createUdbDatabase(udbFilePath, rootFile.getAbsolutePath());
+
+    LOGGER.info("Opening udb database: {}", udbFilePath);
+    Database database = Understand.open(udbFilePath);
+    LOGGER.info("Opened udb database");
+
+    return database;
+  }
 
   /**
    * Creates udb Understand database.
@@ -59,12 +82,28 @@ public class UnderstandService {
   }
 
   /**
+   * Finds all dead code occurrences and set end result to deadCodeDetection
+   * @param deadCodeDetection object to set dead code occurrences list
+   * @param database Understand database
+   * @param rootFile Source directory of project to be analyzed
+   */
+  void findAndSetDeadCodes(DeadCodeDetection deadCodeDetection,
+      Database database, File rootFile) {
+    List<UnusedUnderstandEntity> deadCodeList = findAllDeadCode(database, rootFile.getAbsolutePath());
+
+    LOGGER.info("Finished processing algorithms: {}", deadCodeDetection.getId());
+
+    deadCodeDetection.setDeadCodeList(deadCodeList);
+    deadCodeDetection.setState(new CompletedState());
+  }
+
+  /**
    * Executes DeadCodeOccurrence finder algorithms
    * @param db .udb Understand Database
    * @param rootSourceDir source directory of project to be analyzed
    * @return All found dead code occurrences
    */
-   List<UnusedUnderstandEntity> findAllDeadCode(Database db, String rootSourceDir) {
+   private List<UnusedUnderstandEntity> findAllDeadCode(Database db, String rootSourceDir) {
 
     List<DeadCodeFinder> finderList = Arrays.asList(
         new UnusedFunctionFinder(),
