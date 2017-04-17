@@ -28,4 +28,9 @@ class FinderFilters {
   static Predicate<Entity> notLambda() {
     return entity -> !StringUtils.contains(entity.name(), "(lambda");
   }
+
+  // Method does not have @Override annotation
+  static Predicate<Entity> notOverridden() {
+    return entity -> entity.refs("override", null, false).length == 0;
+  }
 }

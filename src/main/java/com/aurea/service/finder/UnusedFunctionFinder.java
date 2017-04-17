@@ -2,6 +2,7 @@ package com.aurea.service.finder;
 
 import static com.aurea.service.finder.FinderFilters.notCalled;
 import static com.aurea.service.finder.FinderFilters.notLambda;
+import static com.aurea.service.finder.FinderFilters.notOverridden;
 import static java.util.stream.Collectors.toList;
 
 import com.aurea.model.DeadCodeType;
@@ -28,6 +29,7 @@ public class UnusedFunctionFinder implements DeadCodeFinder{
     return Arrays.stream(privateVariables)
         .filter(notCalled())
         .filter(notLambda())
+        .filter(notOverridden())
         .map(entity -> DeadCodeFinder.getUnusedUnderstandEntity(entity, getType()))
         .collect(toList());
   }
