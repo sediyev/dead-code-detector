@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.jgit.lib.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -48,7 +49,7 @@ public class DeadCodeDetectionController {
   @ResponseBody
   @RequestMapping(value = "/repositories", method = POST, produces = APPLICATION_JSON_VALUE)
   public ResponseEntity<DeadCodeDetection> addRepositoryForInspection(@RequestParam String url,
-      @RequestParam(defaultValue = "master") String branch) {
+      @RequestParam(defaultValue = Constants.HEAD) String branch) {
 
     LOGGER.info("Rest call to add model for inspection. url: {}, branch: {}", url, branch);
 
