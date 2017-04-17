@@ -1,13 +1,18 @@
 package com.aurea.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.beans.Transient;
 import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.ws.rs.Produces;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Produces("application/json")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GitHubRepo {
 
   private static Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -18,7 +23,7 @@ public class GitHubRepo {
   GitHubRepo(String urlValue, String branch) {
 
     this.repoUrl = parseURL(urlValue);
-    this.branch = branch;
+    this.branch = StringUtils.isBlank(branch) ? null : branch;
   }
 
   private URL parseURL(String urlValue) {
