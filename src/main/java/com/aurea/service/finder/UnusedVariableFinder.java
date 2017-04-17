@@ -22,7 +22,7 @@ public class UnusedVariableFinder implements DeadCodeFinder {
 
     LOGGER.info("Processing algorithm :{}", getClass().getSimpleName());
 
-    Entity[] privateVariables = udb.ents("private variable ~unresolved ~unknown");
+    Entity[] privateVariables = udb.ents("variable ~unresolved ~unknown");
 
     return Arrays.stream(privateVariables)
         .filter(notUsed())
