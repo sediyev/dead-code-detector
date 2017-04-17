@@ -8,6 +8,7 @@ import com.aurea.model.state.FailedState;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.slf4j.Logger;
@@ -39,17 +40,17 @@ public class GitService {
 
     GitHubRepo gitHubRepo = deadCodeDetection.getGitHubRepo();
     String repoUrl = gitHubRepo.getRepoUrl().toString();
-    String branch  = gitHubRepo.getBranch();
+    String branch = gitHubRepo.getBranch();
 
     Git git = Git.cloneRepository()
         .setDirectory(localDir)
-        .setBranch(branch)
+        .setBranch(StringUtils.isBlank(branch) ? null : branch)
         .setURI(repoUrl)
         .call();
 
     git.getRepository().close();
 
-    if(localDir.list().length <= 1){
+    if (localDir.list().length <= 1) {
       deadCodeDetection.setState(new FailedState("Branch not found!"));
       throw new GitHubDownloadException("Branch not found!" + branch);
     }

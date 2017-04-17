@@ -7,7 +7,6 @@ import java.lang.invoke.MethodHandles;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.ws.rs.Produces;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,7 @@ public class GitHubRepo {
   GitHubRepo(String urlValue, String branch) {
 
     this.repoUrl = parseURL(urlValue);
-    this.branch = StringUtils.isBlank(branch) ? null : branch;
+    this.branch = branch;
   }
 
   private URL parseURL(String urlValue) {
