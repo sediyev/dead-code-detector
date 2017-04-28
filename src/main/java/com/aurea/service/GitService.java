@@ -50,7 +50,8 @@ public class GitService {
 
     git.getRepository().close();
 
-    if (localDir.list().length <= 1) {
+    //TODO change GitHubDownloadException to BranchNotFoundException
+    if (localDir.list() != null && localDir.list().length <= 1) {
       deadCodeDetection.setState(new FailedState("Branch not found!"));
       throw new GitHubDownloadException("Branch not found!" + branch);
     }

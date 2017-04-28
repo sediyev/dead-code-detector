@@ -8,6 +8,10 @@ public class SampleDeadVariable{
   private int unused2;
 
   public int usedInAnotherClass;
+  
+  int unusedPackagePrivate;
+
+  public int unusedPublicIntValue;
 
   private void use(){
 
